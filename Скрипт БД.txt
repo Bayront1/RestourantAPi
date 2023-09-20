@@ -1,0 +1,84 @@
+CREATE TABLE IF NOT EXISTS public.type_zone
+(
+    id bigint NOT NULL,
+    name character varying(100) COLLATE pg_catalog."default",
+    CONSTRAINT type_zone_pkey PRIMARY KEY (id)
+)
+CREATE TABLE IF NOT EXISTS public.role
+(
+    id bigint NOT NULL,
+    name character varying(100) COLLATE pg_catalog."default",
+    CONSTRAINT role_pkey PRIMARY KEY (id)
+)
+CREATE TABLE IF NOT EXISTS public.ingredient
+(
+    id bigint NOT NULL,
+    name character varying(500) COLLATE pg_catalog."default",
+    CONSTRAINT ingredient_pkey PRIMARY KEY (id)
+)
+
+CREATE TABLE IF NOT EXISTS public.dish
+(
+    id bigint NOT NULL,
+    description character varying(500) COLLATE pg_catalog."default",
+    image character varying(500) COLLATE pg_catalog."default",
+    name character varying(500) COLLATE pg_catalog."default",
+    price integer NOT NULL,
+    CONSTRAINT dish_pkey PRIMARY KEY (id),
+    CONSTRAINT dish_price_check CHECK (price >= 1 AND price <= 10000)
+)
+CREATE TABLE IF NOT EXISTS public.model_user
+(
+    id bigint NOT NULL,
+    active boolean NOT NULL,
+    password character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    username character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    role bigint,
+    CONSTRAINT model_user_pkey PRIMARY KEY (id),
+    CONSTRAINT fk6kxx1o5snfw9fv0261iqbqyvh FOREIGN KEY (role)
+        REFERENCES public.role (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+)
+CREATE TABLE IF NOT EXISTS public.dish_ingredient
+(
+    dish_id bigint NOT NULL,
+    ingredient_id bigint NOT NULL,
+    CONSTRAINT fkb0mfoikuh0kjw66vsssyqseo FOREIGN KEY (dish_id)
+        REFERENCES public.dish (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT fklsik2ca5etotku9wviwcnsbu4 FOREIGN KEY (ingredient_id)
+        REFERENCES public.ingredient (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+CREATE TABLE IF NOT EXISTS public.orders
+(
+    id bigint NOT NULL,
+    dish_id bigint,
+    CONSTRAINT orders_pkey PRIMARY KEY (id),
+    CONSTRAINT fken96ivb6vdylv2s1eeoxie4c6 FOREIGN KEY (dish_id)
+        REFERENCES public.dish (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+CREATE TABLE IF NOT EXISTS public.booking
+(
+    id bigint NOT NULL,
+    num_people integer NOT NULL,
+    serving_time timestamp without time zone,
+    orders_id bigint,
+    type_zone_id bigint,
+    CONSTRAINT booking_pkey PRIMARY KEY (id),
+    CONSTRAINT fk2k5dtdv7n57itul9v5wnxhrgq FOREIGN KEY (orders_id)
+        REFERENCES public.orders (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT fkmd6dnwto80k6b72cyhqdi6t6j FOREIGN KEY (type_zone_id)
+        REFERENCES public.type_zone (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+)
+insert into role(name)
+values (‘ADMIN’), (‘USER’), (‘MANAGER’)
